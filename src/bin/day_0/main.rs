@@ -22,10 +22,14 @@ fn get_input_path(is_sample: bool) -> String {
         .last()
         .expect("Seems like there isn't any slash?");
 
-    let bin_name = exe_name
-        .split(".")
-        .nth(0)
-        .expect("File seems like a dotfile.");
+    // Linux does not have . in file name.
+    let file_components: Vec<&str> = exe_name.split(".").collect();
+
+    let mut bin_name = exe_name;
+
+    if file_components.len() > 0 {
+        bin_name = file_components[0];
+    }
 
     // clean up hash value, hopefully.
     let bin_name = hash_regex.replace_all(bin_name, "");
