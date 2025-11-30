@@ -1,4 +1,4 @@
-use std::{env, fs};
+use std::{env, fs, path::MAIN_SEPARATOR};
 
 use regex::Regex;
 
@@ -18,7 +18,7 @@ fn get_input_path(is_sample: bool) -> String {
     };
 
     let exe_name = path
-        .split("\\")
+        .split(MAIN_SEPARATOR)
         .last()
         .expect("Seems like there isn't any slash?");
 
