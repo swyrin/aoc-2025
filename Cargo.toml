@@ -4,7 +4,9 @@ authors = ["Tien Dat Pham <swyrin@akvns.org>"]
 license = "AGPL-3.0-or-later"
 version = "0.1.0"
 edition = "2024"
+default-run = "aoc-2025"
 
 [dependencies]
+clap = { version = "4.5.53", features = ["derive"] }
 parameterized = "2.1.0"
 regex = "1.12.2"
