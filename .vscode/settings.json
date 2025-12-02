@@ -4,5 +4,24 @@
         "editor.formatOnSave": true,
     },
     "rust-analyzer.references.excludeTests": true,
-    "rust-analyzer.testExplorer": true
+    "rust-analyzer.testExplorer": true,
+    "rust-analyzer.check.command": "clippy",
+    "files.readonlyInclude": {
+        // input
+        "input/day_00*.txt": true,
+        "input/day_01*.txt": true,
+        "input/day_02*.txt": true,
+        // code
+        "src/bin/day_00/**": true,
+        "src/bin/day_01/**": true,
+        "src/bin/day_02/**": true,
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "target/**": true
+    }
 }
