@@ -19,7 +19,7 @@ fn get_input_path(is_sample: bool) -> String {
 
     let exe_name = path
         .split(MAIN_SEPARATOR)
-        .last()
+        .next_back()
         .expect("Seems like there isn't any slash?");
 
     // Linux does not have . in file name.
@@ -27,7 +27,7 @@ fn get_input_path(is_sample: bool) -> String {
 
     let mut bin_name = exe_name;
 
-    if file_components.len() > 0 {
+    if !file_components.is_empty() {
         bin_name = file_components[0];
     }
 
@@ -49,10 +49,26 @@ fn get_input_path(is_sample: bool) -> String {
 }
 
 #[forbid(unsafe_code)]
-fn main() -> () {
+fn main() {
     println!("Part 1: {}", part_1(false));
     println!("----------------");
     println!("Part 2: {}", part_2(false));
+}
+
+#[forbid(unsafe_code)]
+fn part_1(is_sample: bool) -> usize {
+    let path = get_input_path(is_sample);
+    let _content = fs::read_to_string(path).expect("File read error.");
+
+    4
+}
+
+#[forbid(unsafe_code)]
+fn part_2(is_sample: bool) -> usize {
+    let path = get_input_path(is_sample);
+    let _content = fs::read_to_string(path).expect("File read error.");
+
+    8
 }
 
 /// Remember to edit the test.
@@ -70,20 +86,4 @@ mod aoc_test {
     fn result_part_2(expected: usize) {
         assert_eq!(part_2(true), expected)
     }
-}
-
-#[forbid(unsafe_code)]
-fn part_1(is_sample: bool) -> usize {
-    let path = get_input_path(is_sample);
-    let _content = fs::read_to_string(path).expect("File read error.");
-
-    4
-}
-
-#[forbid(unsafe_code)]
-fn part_2(is_sample: bool) -> usize {
-    let path = get_input_path(is_sample);
-    let _content = fs::read_to_string(path).expect("File read error.");
-
-    8
 }

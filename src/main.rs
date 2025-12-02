@@ -48,6 +48,6 @@ fn main() {
     let mut file = File::create_new(code_base_dir.clone() + day_number_leftpad + "/main.rs")
         .expect("Unable to create file.");
 
-    file.write(content.as_bytes())
+    file.write_all(content.as_bytes())
         .expect("Code file write error!");
 }
