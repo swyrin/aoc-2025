@@ -49,10 +49,15 @@ fn get_input_path(is_sample: bool) -> String {
 }
 
 #[forbid(unsafe_code)]
-fn main() {
-    println!("Part 1: {}", part_1(false));
-    println!("----------------");
-    println!("Part 2: {}", part_2(false));
+#[tokio::main]
+async fn main() {
+    tokio::spawn(async move {
+        println!("Part 1: {}", part_1(false));
+    });
+
+    tokio::spawn(async move {
+        println!("Part 2: {}", part_2(false));
+    });
 }
 
 #[forbid(unsafe_code)]
