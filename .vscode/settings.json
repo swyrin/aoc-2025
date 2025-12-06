@@ -12,11 +12,17 @@
         "input/day_01*.txt": true,
         "input/day_02*.txt": true,
         "input/day_03*.txt": true,
+        "input/day_04*.txt": true,
+        "input/day_05*.txt": true,
+        "input/day_06*.txt": true,
         // code
         "src/bin/day_00/**": true,
         "src/bin/day_01/**": true,
         "src/bin/day_02/**": true,
         "src/bin/day_03/**": true,
+        "src/bin/day_04/**": true,
+        "src/bin/day_05/**": true,
+        "src/bin/day_06/**": true,
     },
     "files.exclude": {
         "**/.git": true,
@@ -25,5 +31,6 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
         "target/**": true
-    }
+    },
+    "editor.trimAutoWhitespace": false
 }
