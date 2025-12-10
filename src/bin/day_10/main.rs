@@ -1,0 +1,265 @@
+use good_lp::{
+    Expression, IntoAffineExpression, Solution, SolverModel, Variable, microlp, variable, variables,
+};
+use num_bigint::BigUint;
+use regex::Regex;
+use std::collections::{HashSet, VecDeque};
+use std::fmt::{Display, Formatter};
+use std::{env, fs, path::MAIN_SEPARATOR, time::Instant};
+
+/// Get input file name based on the current running binary file.
+///
+/// For example, if running inside `src/bin/day_00/main.rs`,
+/// the function returns `input/day_00_[mode].txt`.
+///
+/// It's best to fold this code, btw.
+fn get_input_path(is_sample: bool) -> String {
+    // cargo test creates hash value in the resulting executable file.
+    let hash_regex = Regex::new("-[a-zA-Z0-9]+").unwrap();
+
+    let path = match env::current_exe() {
+        Ok(path) => String::from(path.to_str().expect("Expect a string?")),
+        Err(_e) => panic!("env::current_exe() failure!"),
+    };
+
+    let exe_name = path
+        .split(MAIN_SEPARATOR)
+        .next_back()
+        .expect("Seems like there isn't any slash?");
+
+    // Linux does not have . in file name.
+    let file_components: Vec<&str> = exe_name.split(".").collect();
+
+    let mut bin_name = exe_name;
+
+    if !file_components.is_empty() {
+        bin_name = file_components[0];
+    }
+
+    // clean up hash value, hopefully.
+    let bin_name = hash_regex.replace_all(bin_name, "");
+
+    let mut location = "input/".to_owned();
+    location.push_str(&bin_name);
+
+    if is_sample {
+        location.push_str("_sample");
+    } else {
+        location.push_str("_personal");
+    }
+
+    location.push_str(".txt");
+
+    location
+}
+
+/// The answer seems a little bit cute today?
+#[derive(Debug, PartialEq)]
+struct Umi {
+    answer: BigUint,
+}
+
+impl Display for Umi {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Feeling like {} because I'm cute :3", self.answer)
+    }
+}
+
+#[forbid(unsafe_code)]
+fn main() {
+    let now = Instant::now();
+    println!("Part 1: {}", part_1(false));
+    let elapsed_time = now.elapsed();
+
+    println!("Running part_1() took {} ms.", elapsed_time.as_millis());
+
+    let now = Instant::now();
+    println!("Part 2: {}", part_2(false));
+    let elapsed_time = now.elapsed();
+
+    println!("Running part_2() took {} ms.", elapsed_time.as_millis());
+}
+
+#[forbid(unsafe_code)]
+fn part_1(is_sample: bool) -> Umi {
+    let path = get_input_path(is_sample);
+    let content = fs::read_to_string(path).expect("File read error.");
+
+    let mut total = 0;
+
+    for line in content.lines() {
+        let components: Vec<&str> = line.split(" ").collect();
+        let component_count = components.len();
+
+        let configuration = components[0];
+
+        let buttons: Vec<&str> = components
+            .clone()
+            .into_iter()
+            .skip(1)
+            .take(component_count - 2)
+            .collect();
+
+        let _what = components.last().expect("There isn't any?");
+
+        let switches: Vec<String> = buttons
+            .into_iter()
+            .map(|x| x.replace(['(', ')'], "").split(",").collect())
+            .collect();
+
+        let mut toggles: Vec<Vec<u32>> = vec![];
+
+        for state in &switches {
+            let numbers: Vec<&str> = state.split(",").collect();
+            let numbers = numbers[0].chars();
+            let numbers: Vec<u32> = numbers.map(|x| x.to_digit(10).unwrap()).collect();
+
+            toggles.push(numbers);
+        }
+
+        let target: Vec<char> = configuration
+            .chars()
+            .skip(1)
+            .take(configuration.len() - 2)
+            .collect();
+
+        let target: Vec<bool> = target.iter().map(|x| *x == '#').collect();
+        let start: Vec<bool> = vec![false; target.len()];
+
+        if start == target {
+            continue;
+        }
+
+        // (configuration, press count)
+        let mut deq = VecDeque::new();
+        deq.push_back((start.clone(), 0));
+
+        let mut seen_state = HashSet::new();
+        seen_state.insert(start);
+
+        while let Some((config, count)) = deq.pop_front() {
+            if config == target {
+                total += count;
+                break;
+            }
+
+            for toggle in &toggles {
+                let mut new_config = config.clone();
+
+                for selected in toggle {
+                    let index = *selected as usize;
+                    new_config[index] = !new_config[index];
+                }
+
+                if seen_state.insert(new_config.clone()) {
+                    deq.push_back((new_config, count + 1));
+                }
+            }
+        }
+    }
+
+    Umi {
+        answer: BigUint::from(total as u32),
+    }
+}
+
+#[forbid(unsafe_code)]
+fn part_2(is_sample: bool) -> Umi {
+    let path = get_input_path(is_sample);
+    let content = fs::read_to_string(path).expect("File read error.");
+
+    let mut total = 0_f64;
+
+    for line in content.lines() {
+        let components: Vec<&str> = line.split(" ").collect();
+        let component_count = components.len();
+
+        let buttons: Vec<&str> = components
+            .clone()
+            .into_iter()
+            .skip(1)
+            .take(component_count - 2)
+            .collect();
+
+        let jolts = components.last().expect("There isn't any?");
+        let jolts = jolts.replace(['{', '}'], "");
+
+        let jolts: Vec<u32> = jolts
+            .split(",")
+            .map(|x| x.parse::<u32>().unwrap())
+            .collect();
+
+        let switches: Vec<String> = buttons
+            .into_iter()
+            .map(|x| x.replace(['(', ')'], "").split(",").collect())
+            .collect();
+
+        let mut toggles: Vec<Vec<u32>> = vec![];
+
+        for state in &switches {
+            let numbers: Vec<&str> = state.split(",").collect();
+            let numbers = numbers[0].chars();
+            let numbers: Vec<u32> = numbers.map(|x| x.to_digit(10).unwrap()).collect();
+
+            toggles.push(numbers);
+        }
+
+        let mut vars = variables!();
+
+        // basically, we do an [A | x] = B where A is the button press toggles, B is the required count
+        // the result will be vector x which is the number of each button touches.
+        let presses: Vec<Variable> = (0..toggles.len())
+            .map(|_| vars.add(variable().min(0).integer()))
+            .collect();
+
+        let mut optimization = microlp(vars.minimise(presses.iter().sum::<Expression>()));
+        let mut expressions = vec![0.into_expression(); jolts.len()];
+
+        for i in 0..toggles.len() {
+            for &x in &toggles[i] {
+                expressions[x as usize] += presses[i];
+            }
+        }
+
+        for (e, j) in expressions.into_iter().zip(jolts) {
+            optimization.add_constraint(e.eq(j as f64));
+        }
+
+        let solution = optimization.solve().unwrap();
+
+        total += presses.iter().map(|&v| solution.value(v)).sum::<f64>();
+    }
+
+    Umi {
+        answer: BigUint::from(total as u32),
+    }
+}
+
+/// Remember to edit the test.
+#[cfg(test)]
+mod aoc_test {
+    use num_bigint::ToBigUint;
+    use parameterized::parameterized;
+
+    use crate::{Umi, part_1, part_2};
+
+    #[parameterized(expected = { 7 })]
+    fn result_part_1(expected: u128) {
+        assert_eq!(
+            part_1(true),
+            Umi {
+                answer: expected.to_biguint().unwrap()
+            }
+        )
+    }
+
+    #[parameterized(expected = { 33_f64 })]
+    fn result_part_2(expected: f64) {
+        assert_eq!(
+            part_2(true),
+            Umi {
+                answer: expected.to_biguint().unwrap()
+            }
+        )
+    }
+}

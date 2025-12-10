@@ -9,6 +9,7 @@ default-run = "aoc-2025"
 [dependencies]
 clap = { version = "4.5.53", features = ["derive"] }
 geo = "0.32.0"
+good_lp = { version = "1.14.2", default-features = false, features = ["microlp"] }
 num-bigint = "0.4.6"
 parameterized = "2.1.0"
 petgraph = "0.8.3"
