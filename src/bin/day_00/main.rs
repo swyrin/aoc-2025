@@ -1,6 +1,7 @@
-use std::{env, fs, path::MAIN_SEPARATOR};
-
+use num_bigint::BigUint;
 use regex::Regex;
+use std::fmt::{Display, Formatter};
+use std::{env, fs, path::MAIN_SEPARATOR, time::Instant};
 
 /// Get input file name based on the current running binary file.
 ///
@@ -48,47 +49,77 @@ fn get_input_path(is_sample: bool) -> String {
     location
 }
 
-#[forbid(unsafe_code)]
-#[tokio::main]
-async fn main() {
-    tokio::spawn(async move {
-        println!("Part 1: {}", part_1(false));
-    });
+/// The answer seems a little bit cute today?
+#[derive(Debug, PartialEq)]
+struct Umi {
+    answer: BigUint,
+}
 
-    tokio::spawn(async move {
-        println!("Part 2: {}", part_2(false));
-    });
+impl Display for Umi {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Feeling like {} because I'm cute :3", self.answer)
+    }
 }
 
 #[forbid(unsafe_code)]
-fn part_1(is_sample: bool) -> usize {
-    let path = get_input_path(is_sample);
-    let _content = fs::read_to_string(path).expect("File read error.");
+fn main() {
+    let now = Instant::now();
+    println!("Part 1: {}", part_1(false));
+    let elapsed_time = now.elapsed();
 
-    4
+    println!("Running part_1() took {} ms.", elapsed_time.as_millis());
+
+    let now = Instant::now();
+    println!("Part 2: {}", part_2(false));
+    let elapsed_time = now.elapsed();
+
+    println!("Running part_2() took {} ms.", elapsed_time.as_millis());
 }
 
 #[forbid(unsafe_code)]
-fn part_2(is_sample: bool) -> usize {
+fn part_1(is_sample: bool) -> Umi {
     let path = get_input_path(is_sample);
-    let _content = fs::read_to_string(path).expect("File read error.");
+    let content = fs::read_to_string(path).expect("File read error.");
 
-    8
+    Umi {
+        answer: BigUint::from(4_u32),
+    }
+}
+
+#[forbid(unsafe_code)]
+fn part_2(is_sample: bool) -> Umi {
+    let path = get_input_path(is_sample);
+    let content = fs::read_to_string(path).expect("File read error.");
+
+    Umi {
+        answer: BigUint::from(8_u32),
+    }
 }
 
 /// Remember to edit the test.
 #[cfg(test)]
 mod aoc_test {
     use super::*;
+    use num_bigint::ToBigUint;
     use parameterized::parameterized;
 
     #[parameterized(expected = { 4 })]
-    fn result_part_1(expected: usize) {
-        assert_eq!(part_1(true), expected)
+    fn result_part_1(expected: u128) {
+        assert_eq!(
+            part_1(true),
+            Umi {
+                answer: expected.to_biguint().unwrap()
+            }
+        )
     }
 
     #[parameterized(expected = { 8 })]
-    fn result_part_2(expected: usize) {
-        assert_eq!(part_2(true), expected)
+    fn result_part_2(expected: u128) {
+        assert_eq!(
+            part_2(true),
+            Umi {
+                answer: expected.to_biguint().unwrap()
+            }
+        )
     }
 }
